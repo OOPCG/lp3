@@ -1,48 +1,41 @@
-//SPDX-License-Identifier: MIT 
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
-// Build the Contract
-contract StudentData
-{
-	// Create a structure for
-	// student details
-	struct Student
-	{
-		int ID;
-		string fName;
-		string lName;
-		int[2] marks;
-	}
-	// fallback () external payable {
-		
-	//  }
+contract StudentData {
 
-	address owner;
-	int public stdCount = 0;
-	mapping(int => Student) public stdRecords;
+    struct Student{
+        uint StudentID;
+        string name;
+        uint age;
+        string course;
+    }
 
-	modifier onlyOwner
-	{
-		require(owner == msg.sender);
-		_;
-	}
-	constructor()
-	{
-		owner=msg.sender;
-	}
+    Student[] public students;
 
-	// Create a function to add
-	// the new records
-	function addNewRecords(int _ID,string memory _fName,string memory _lName,int[2] memory _marks) public onlyOwner
-	{
-		// Increase the count by 1
-		stdCount = stdCount + 1;
+    event StudentAdd(uint StudentID, string name);
+    event Fallbackcalled(address sender, uint value);
 
-		// Fetch the student details
-		// with the help of stdCount
-		stdRecords[stdCount] = Student(_ID, _fName,_lName, _marks);
-	}
+    function AddStudents(uint _StudentID, string memory _name, uint _age, string memory _course) public {
+        students.push(Student(_StudentID, _name, _age, _course));
+        emit StudentAdd(_StudentID, _name);
+    }
 
+    function getStudentCount() public view returns(uint) {
+        return students.length;
+    }
+
+    function getStudent(uint index) public view returns(uint, string memory, uint, string memory) {
+        require(index < students.length, "No Data found");
+        Student memory s = students[index];
+        return (s.StudentID, s.name, s.age, s.course);
+    }
+
+    fallback() external payable { 
+        emit Fallbackcalled(msg.sender, msg.value);
+    }
+
+    receive() external payable { 
+        emit Fallbackcalled(msg.sender, msg.value);
+    }
 }
-
-
